@@ -8,6 +8,7 @@ from typing import List, Dict, Optional
 import torch
 import uuid
 from datetime import datetime
+import logging
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
 app = FastAPI()
@@ -75,7 +76,7 @@ async def chat_completions(request: ChatRequest):
     #         }
     #     ]
     # })
-    return ChatResponse(
+    chat_response = ChatResponse(
         id=f"chatcmpl-{uuid.uuid4().hex[:12]}",
         object="chat.completion",
         created=int(time.time()),
@@ -88,6 +89,9 @@ async def chat_completions(request: ChatRequest):
             )
         ]
     )
+
+    logging.info("ChatResponse: %s", chat_response.json())
+    return chat_response
 
 @app.get("/")
 def root():
@@ -115,7 +119,7 @@ def list_models():
             {
                 "id": model_id,
                 "object": "model",
-                "created": datetime.now().isoformat(),
+                "created": int(time.time()),  #  datetime.now().isoformat()
                 "owned_by": "microsoft",
                 "permission": []
             }
